@@ -6,16 +6,19 @@ chromadb
 transformers
 python-dotenv
 # rag_from_scratch
-langchain_community
+# langchain_community
 tiktoken
-langchain-openai
-langchainhub
+# langchain-openai
+# langchainhub
 #chromadb
 langchain
 langsmith
 #ingest_from_web
 bs4
 #OpenAI Without Langchain
-openai==0.28
+openai
 #Huzaifa
 pypdf
+# FAST API
+fastapi
+# "uvicorn[standard]"

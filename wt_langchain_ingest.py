@@ -1,26 +1,33 @@
+# Import Libraries
 import os
 from dotenv import load_dotenv, dotenv_values
 import openai
+import re
+from typing import List
+import chromadb
+import chromadb.utils.embedding_functions as embedding_functions
+import math
 
+# Load environment variables
 load_dotenv(
     dotenv_path="D:/Data Science Projects/Scalence Internship ML/Bukhari-Muslim-RAG/.env",
     override=True
 )
 
+# Declare & print API key
 OpenAI_TOKEN = os.environ["OpenAI_TOKEN"]
 print(OpenAI_TOKEN)
 
 # url = input("Please enter the path of file to ingest: ")
 url="story_sherlock_holmes.txt"
 
+# Upload and read .txt file
 with open(url, 'r', encoding='utf-8') as file:
     docs = file.read()
 
 print(docs)
 
-import re
-from typing import List
-
+# Make Text Splitter Function
 class RecursiveCharacterTextSplitter:
     def __init__(self, max_length: int, delimiters: List[str] = None):
         self.max_length = max_length
@@ -65,33 +72,38 @@ class RecursiveCharacterTextSplitter:
 
         return final_splits
 
+# Split .txt file content into chunks
 splitter = RecursiveCharacterTextSplitter(max_length=50)
 splits = splitter.split_text(docs)
 print(splits)
 len(splits)
 
-import chromadb
-
+# Define Chroma client path
 path="D:/Data Science Projects/Scalence Internship ML/Bukhari-Muslim-RAG/chroma"
 
+# Initialize Chroma client
 vectorstore = chromadb.PersistentClient(
     path=path
 )
 
+# Define collection name to be created
 collection_name = 'sherlock_holmes_collection_without_langchain'
 
-import chromadb.utils.embedding_functions as embedding_functions
+# Create embedding function to create embeddings
 openai_ef = embedding_functions.OpenAIEmbeddingFunction(
                 api_key=OpenAI_TOKEN,
                 model_name="text-embedding-ada-002"
             )
 
+# Create new chromadb collection
 collection = vectorstore.get_or_create_collection(
     name=collection_name,
     embedding_function=openai_ef
 )
 
 len(splits)
+
+# Create ids parameter
 ids = []
 len(ids)
 id = 1
@@ -101,12 +113,13 @@ for i, split in enumerate(splits):
 # ids
 len(ids)
 
-import math
 
+# Make number of loops according to batch size
 batch_size = 2000
 loops = math.ceil((len(splits))/batch_size)
 loops
 
+# Add/Update splits with ids to create embeddings and store in collection
 for i in range(0,loops):
     collection.upsert(
         documents = splits[(i*batch_size):(batch_size*(i+1))],
